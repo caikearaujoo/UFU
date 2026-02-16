@@ -1,0 +1,166 @@
+main {
+    {% ===================================================
+       TESTE COMPLETO - Analisador Sintático
+       Este arquivo testa TODAS as funcionalidades
+       =================================================== %}
+    
+    {% 1. DECLARAÇÕES SIMPLES %}
+    int x;
+    float y;
+    char letra;
+    void vazio;
+    
+    {% 2. DECLARAÇÕES COM INICIALIZAÇÃO %}
+    int contador := 0;
+    float pi := 3.14159;
+    char inicial := 'A';
+    
+    {% 3. ARRAYS %}
+    int vetor[10];
+    float matriz[5];
+    
+    {% 4. ATRIBUIÇÕES SIMPLES %}
+    x := 10;
+    y := 20.5;
+    letra := 'B';
+    
+    {% 5. ATRIBUIÇÕES COM ARRAYS %}
+    vetor[0] := 100;
+    vetor[contador] := 200;
+    matriz[3] := vetor[0] + vetor[contador];
+    
+    {% 6. EXPRESSÕES ARITMÉTICAS COMPLEXAS %}
+    int resultado1 := 2 + 3 * 4;
+    int resultado2 := (5 + 3) * 2;
+    int resultado3 := 10 / 2 - 1;
+    int resultado4 := 2 ** 3 + 1;
+    int resultado5 := (2 + 3) ** (4 - 1);
+    int resultado6 := -x + y;
+    int resultado7 := +10 - (-5);
+    
+    {% 7. IF-THEN-ELSE SIMPLES %}
+    if (x > 5) then {
+        x := x + 1;
+    } else {
+        x := x - 1;
+    }
+    
+    {% 8. IF-ELSIF-ELSE MÚLTIPLO %}
+    int nota := 85;
+    if (nota >= 90) then {
+        char conceito := 'A';
+    } elsif (nota >= 80) then {
+        char conceito := 'B';
+    } elsif (nota >= 70) then {
+        char conceito := 'C';
+    } elsif (nota >= 60) then {
+        char conceito := 'D';
+    } else {
+        char conceito := 'F';
+    }
+    
+    {% 9. IF SEM ELSE %}
+    if (contador < 100) then {
+        contador := contador + 1;
+    }
+    
+    {% 10. WHILE SIMPLES %}
+    int i := 0;
+    while (i < 10) do {
+        i := i + 1;
+    }
+    
+    {% 11. WHILE COM BLOCO COMANDO ÚNICO %}
+    int j := 0;
+    while (j < 5) do
+        j := j + 1;
+    
+    {% 12. FOR COMPLETO %}
+    int k;
+    int soma := 0;
+    for (k := 1; k <= 10; k := k + 1) do {
+        soma := soma + k;
+    }
+    
+    {% 13. OPERADORES RELACIONAIS - TODOS %}
+    int bool1, bool2, bool3, bool4, bool5, bool6;
+    
+    if (x == 10) then {
+        bool1 := 1;
+    }
+    
+    if (x != 5) then {
+        bool2 := 1;
+    }
+    
+    if (x < 20) then {
+        bool3 := 1;
+    }
+    
+    if (x > 5) then {
+        bool4 := 1;
+    }
+    
+    if (x <= 10) then {
+        bool5 := 1;
+    }
+    
+    if (x >= 10) then {
+        bool6 := 1;
+    }
+    
+    {% 14. ESTRUTURAS ANINHADAS - WHILE + IF %}
+    int linha := 0;
+    int coluna;
+    while (linha < 3) do {
+        coluna := 0;
+        while (coluna < 3) do {
+            if (linha == coluna) then {
+                matriz[linha] := 1.0;
+            } else {
+                matriz[linha] := 0.0;
+            }
+            coluna := coluna + 1;
+        }
+        linha := linha + 1;
+    }
+    
+    {% 15. FOR + IF ANINHADOS %}
+    int m;
+    for (m := 0; m < 10; m := m + 1) do {
+        if (m > 5) then {
+            vetor[m] := m ** 2;
+        } elsif (m > 2) then {
+            vetor[m] := m * 2;
+        } else {
+            vetor[m] := m;
+        }
+    }
+    
+    {% 16. EXPRESSÕES RELACIONAIS SEM OPERADOR %}
+    if (contador) then {
+        int verdadeiro := 1;
+    }
+    
+    {% 17. EXPRESSÕES COM PARENTESES ANINHADOS %}
+    int complexo := ((2 + 3) * (4 - 1)) / ((5 + 2) - 3);
+    
+    {% 18. MÚLTIPLAS DECLARAÇÕES NA MESMA LINHA %}
+    int a, b, c;
+    a := 1;
+    b := 2;
+    c := 3;
+    float d, e, f;
+    e := 5.5;
+    
+    {% 19. POTÊNCIA ASSOCIATIVA À DIREITA %}
+    int potencia := 2 ** 3 ** 2;
+    
+    {% 20. TODAS AS PRECEDÊNCIAS JUNTAS %}
+    int mega := a + b * c ** 2 - d / e;
+    
+    {% ===================================================
+       FIM DO TESTE COMPLETO
+       Se chegou até aqui: SUCESSO TOTAL! ✅
+       =================================================== %}
+}
