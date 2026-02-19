@@ -22,6 +22,9 @@ class AnalisadorLexico:
         self.coluna = 1
         self.tamanho = len(codigo_fonte)
         
+        # Armazena linhas do código para exibir em erros
+        self.linhas_codigo = codigo_fonte.split('\n')
+        
         # --- Tabela Híbrida ---
         self.tabela_dados = []  # Lista (0, 1, 2...) para guardar os dados
         self.tabela_busca = {} 
@@ -66,6 +69,35 @@ class AnalisadorLexico:
             # Novo ID
             novo_idx = self._add_tabela(lexema, 'ID')
             return "ID", novo_idx
+    
+    def erro_lexico(self, mensagem, linha, coluna):
+        """
+        Gera uma mensagem de erro léxico útil com indicador visual de coluna.
+        
+        Args:
+            mensagem: Descrição do erro
+            linha: Linha onde ocorreu o erro
+            coluna: Coluna onde ocorreu o erro
+        """
+        print(f"\n{'='*70}")
+        print(f"ERRO LÉXICO na Linha {linha}, Coluna {coluna}")
+        print(f"{'='*70}")
+        
+        # Mostra a linha do código onde ocorreu o erro
+        if 1 <= linha <= len(self.linhas_codigo):
+            linha_codigo = self.linhas_codigo[linha - 1]
+            print(f"\n{linha:4} | {linha_codigo}")
+            
+            # Cria indicador visual da coluna (seta apontando para o erro)
+            espacos = ' ' * (7 + coluna - 1)  # 7 = len("    | ")
+            print(f"{espacos}^")
+            print(f"{espacos}|")
+            print(f"{espacos}Erro aqui\n")
+        
+        print(f"Mensagem: {mensagem}")
+        print(f"{'='*70}\n")
+        
+        raise Exception(f"Erro Léxico: {mensagem}")
     
     def proximo_char(self):
         if self.pos >= self.tamanho:
@@ -159,7 +191,7 @@ class AnalisadorLexico:
                     estado = 42
                     lexema = ""
                 else:
-                    raise Exception(f"Erro Léxico: Caractere inválido '{char}' na linha {self.linha}, coluna {self.coluna}")
+                    self.erro_lexico(f"Caractere inválido '{char}'", self.linha, self.coluna)
             
             # --- ESTADO 44: IDENTIFICADORES ---
             elif estado == 44:
@@ -190,7 +222,7 @@ class AnalisadorLexico:
                     lexema += char
                     estado = 34
                 else:
-                    raise Exception(f"Erro Léxico: Esperado dígito após '.' na linha {self.linha}")
+                    self.erro_lexico(f"Esperado dígito após '.' no número '{lexema}'", self.linha, self.coluna)
             
             elif estado == 34:
                 if char is not None and char.isdigit():
@@ -211,14 +243,14 @@ class AnalisadorLexico:
                     lexema += char
                     estado = 38
                 else:
-                    raise Exception(f"Erro Léxico: Malformação em número exponencial na linha {self.linha}")
+                    self.erro_lexico(f"Malformação em número exponencial '{lexema}'", self.linha, self.coluna)
             
             elif estado == 37:
                 if char is not None and char.isdigit():
                     lexema += char
                     estado = 38
                 else:
-                    raise Exception(f"Erro Léxico: Esperado dígito no expoente na linha {self.linha}")
+                    self.erro_lexico(f"Esperado dígito no expoente de '{lexema}'", self.linha, self.coluna)
             
             elif estado == 38:
                 if char is not None and char.isdigit():
@@ -247,13 +279,13 @@ class AnalisadorLexico:
                 if char == '=':
                     return Token("RELOP", inicio_linha, inicio_coluna, atributo="EQEQ")
                 else:
-                    raise Exception(f"Erro Léxico: '=' isolado não é válido. Use ':=' para atribuição ou '==' para comparação na linha {self.linha}")
+                    self.erro_lexico("'=' isolado não é válido. Use ':=' para atribuição ou '==' para comparação", inicio_linha, inicio_coluna)
             
             elif estado == 16:
                 if char == '=':
                     return Token("RELOP", inicio_linha, inicio_coluna, atributo="NE")
                 else:
-                    raise Exception(f"Erro Léxico: Esperado '=' após '!' na linha {self.linha}")
+                    self.erro_lexico("Esperado '=' após '!' para formar '!='", self.linha, self.coluna)
             
             # --- COMENTÁRIOS ---
             elif estado == 21:
@@ -265,7 +297,7 @@ class AnalisadorLexico:
             
             elif estado == 22:
                 if char is None:
-                    raise Exception(f"Erro Léxico: Comentário não fechado iniciado na linha {inicio_linha}")
+                    self.erro_lexico(f"Comentário não fechado iniciado na linha {inicio_linha}", self.linha, self.coluna)
                 elif char == '%':
                     estado = 23
                 # Continua lendo o comentário
@@ -296,16 +328,16 @@ class AnalisadorLexico:
                     return Token("ASSIGN", inicio_linha, inicio_coluna)
                 else:
                     self.retract()
-                    raise Exception(f"Erro Léxico: Esperado '=' após ':' na linha {self.linha}")
+                    self.erro_lexico("Esperado '=' após ':' para formar ':='", self.linha, self.coluna)
             
             # --- CONST_CHAR ---
             elif estado == 39:
                 if char is None:
-                    raise Exception(f"Erro Léxico: Caractere literal não fechado na linha {inicio_linha}")
+                    self.erro_lexico(f"Caractere literal não fechado iniciado na linha {inicio_linha}", self.linha, self.coluna)
                 elif char == '\n' or char == '\t':
-                    raise Exception(f"Erro Léxico: Caractere literal não pode conter quebra de linha ou tab na linha {self.linha}")
+                    self.erro_lexico("Caractere literal não pode conter quebra de linha ou tab", self.linha, self.coluna)
                 elif char == "'":
-                    raise Exception(f"Erro Léxico: Caractere literal vazio na linha {self.linha}")
+                    self.erro_lexico("Caractere literal vazio", self.linha, self.coluna)
                 else:
                     lexema = char
                     estado = 40
@@ -315,7 +347,7 @@ class AnalisadorLexico:
                     idx = self._add_tabela(lexema, "CONST_CHAR")
                     return Token("CONST_CHAR", inicio_linha, inicio_coluna, atributo=idx)
                 else:
-                    raise Exception(f"Erro Léxico: Esperado \"'\" para fechar caractere literal na linha {self.linha}")
+                    self.erro_lexico(f"Esperado \"'\" para fechar caractere literal '{lexema}'", self.linha, self.coluna)
             
             # --- WHITESPACE ---
             elif estado == 42:
@@ -371,7 +403,7 @@ main {
         print("IDX | TIPO       | LEXEMA")
         print("-" * 35)
         for i, item in enumerate(lexer.tabela_dados):
-            if i >= 13:  # Mostra apenas itens adicionados durante análise.
+            if i >= 12:  # Mostra apenas itens adicionados durante análise.
                 print(f"{i:3} | {item['tipo']:10} | {item['lexema']}")
     
     except Exception as e:
