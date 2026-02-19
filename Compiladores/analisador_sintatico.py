@@ -72,6 +72,9 @@ class AnalisadorSintatico:
         self.prox_token = None
         self.arvore_raiz = None
         self.pilha_nos = []  # Pilha auxiliar para construção da árvore
+        
+        # Armazena linhas do código fonte para exibir em erros
+        self.linhas_codigo = lexer.codigo.split('\n')
     
     def empilha(self, simbolo):
         """Empilha um símbolo na pilha de análise"""
@@ -120,6 +123,18 @@ class AnalisadorSintatico:
             print(f"\n{'='*70}")
             print(f"ERRO SINTÁTICO na Linha {token.linha}, Coluna {token.coluna}")
             print(f"{'='*70}")
+            
+            # Mostra a linha do código onde ocorreu o erro
+            if 1 <= token.linha <= len(self.linhas_codigo):
+                linha_codigo = self.linhas_codigo[token.linha - 1]
+                print(f"\n{token.linha:4} | {linha_codigo}")
+                
+                # Cria indicador visual da coluna (seta apontando para o erro)
+                espacos = ' ' * (7 + token.coluna - 1)  # 7 = len("    | ")
+                print(f"{espacos}^")
+                print(f"{espacos}|")
+                print(f"{espacos}Erro aqui\n")
+            
             print(f"Token encontrado: {token}")
             print(f"Mensagem: {mensagem}")
             print(f"{'='*70}\n")
